@@ -1,0 +1,80 @@
+/* Styles pour le tableau détaillé agent/créneau */
+#agentDetailsTable {
+    font-size: 0.85rem;
+}
+
+#agentDetailsTable th {
+    position: sticky;
+    top: 0;
+    background-color: #2c3e50 !important;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+#agentDetailsTable td {
+    padding: 4px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.agent-detail-row:hover {
+    background-color: rgba(52, 152, 219, 0.05) !important;
+}
+
+/* Badges colorés pour les appels */
+.badge.bg-success { background-color: #27ae60 !important; }
+.badge.bg-warning { background-color: #f39c12 !important; color: #000; }
+.badge.bg-danger { background-color: #e74c3c !important; }
+.badge.bg-secondary { background-color: #95a5a6 !important; }
+.badge.bg-primary { background-color: #3498db !important; }
+.badge.bg-info { background-color: #2980b9 !important; }
+
+/* Tooltip personnalisé */
+[title] {
+    cursor: help;
+    position: relative;
+}
+
+/* Responsive pour le tableau détaillé */
+@media (max-width: 768px) {
+    #agentDetailsTable {
+        font-size: 0.75rem;
+    }
+    
+    #agentDetailsTable th,
+    #agentDetailsTable td {
+        padding: 2px;
+    }
+}
+
+/* Animation pour les cellules */
+.cell-update {
+    animation: pulse 0.5s;
+}
+
+@keyframes pulse {
+    0% { background-color: rgba(39, 174, 96, 0.2); }
+    100% { background-color: transparent; }
+}
+
+/* Scroll personnalisé */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #2980b9;
+}

@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Assurance - Gestion Complète</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), #1a252f);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        input[type="number"], input[type="time"], input[type="text"] {
+            text-align: center;
+        }
+        
+        .btn-custom {
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
+        }
+        
+        .btn-success-custom {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+            color: white;
+        }
+        
+        .btn-warning-custom {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+            color: white;
+        }
+        
+        .table th {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+        
+        .table td {
+            padding: 10px 12px;
+            vertical-align: middle;
+        }
+        
+        .demande-cell {
+            background-color: #e8f4fd;
+        }
+        
+        .calcule-cell {
+            background-color: #e8f8f3;
+        }
+        
+        .reel-cell {
+            background-color: #fff8e1;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* Colors for status */
+        .bg-excellent { background-color: #27ae60 !important; }
+        .bg-good { background-color: #3498db !important; }
+        .bg-warning { background-color: #f39c12 !important; }
+        .bg-danger { background-color: #e74c3c !important; }
+        
+        .agent-present {
+            background-color: #d4edda !important;
+        }
+        
+        .agent-absent {
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+        
+        .agent-vacation {
+            background-color: #fff3cd !important;
+            color: #856404;
+        }
+        
+        /* Tooltip */
+        [data-bs-toggle="tooltip"] {
+            cursor: help;
+        }
+        
+        /* Configuration des équipes */
+        .team-config {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .team-header {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .absence-badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            margin-left: 5px;
+        }
+        
+        /* Modal styles */
+        .modal-content {
+            border-radius: 10px;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 15px;
+            }
+            
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-headset me-2"></i>Direct Assurance - Gestion Complète</h1>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="text-white-50">
+                        <i class="fas fa-calendar-day me-1"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Left Column: Configuration & Summary -->
+            <div class="col-lg-4">
+                <!-- Configuration des Équipes -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-users me-2"></i>Configuration des Équipes
+                        <button class="btn btn-sm btn-light float-end" id="manageAbsencesBtn">
+                            <i class="fas fa-user-slash me-1"></i> Gérer Absences
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="teamsConfig">
+                            <!-- Équipe 1 -->
+                            <div class="team-config">
+                                <div class="team-header d-flex justify-content-between">
+                                    <div>
+                                        <i class="fas fa-user-tie me-2"></i>Équipe 1
+                                        <span class="badge bg-primary absence-badge" id="absenceBadge1">0 abs</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="openTeamModal(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-12 mb-2">
+                                        <label class="form-label">Team Manager</label>
+                                        <input type="text" class="form-control form-control-sm team-tm" 
+                                               data-team="1" value="Ahmed">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agents totaux</label>
+                                        <input type="number" class="form-control form-control-sm team-total" 
+                                               data-team="1" value="12" min="1" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Présents aujourd'hui</label>
+                                        <input type="number" class="form-control form-control-sm team-present" 
+                                               data-team="1" value="10" min="0" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Début</label>
+                                        <input type="time" class="form-control form-control-sm team-start" 
+                                               data-team="1" value="08:30">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fin</label>
+                                        <input type="time" class="form-control form-control-sm team-end" 
+                                               data-team="1" value="17:30">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Équipe 2 -->
+                            <div class="team-config">
+                                <div class="team-header d-flex justify-content-between">
+                                    <div>
+                                        <i class="fas fa-user-tie me-2"></i>Équipe 2
+                                        <span class="badge bg-success absence-badge" id="absenceBadge2">0 abs</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-success" onclick="openTeamModal(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-12 mb-2">
+                                        <label class="form-label">Team Manager</label>
+                                        <input type="text" class="form-control form-control-sm team-tm" 
+                                               data-team="2" value="Fatima">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agents totaux</label>
+                                        <input type="number" class="form-control form-control-sm team-total" 
+                                               data-team="2" value="11" min="1" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Présents aujourd'hui</label>
+                                        <input type="number" class="form-control form-control-sm team-present" 
+                                               data-team="2" value="9" min="0" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Début</label>
+                                        <input type="time" class="form-control form-control-sm team-start" 
+                                               data-team="2" value="11:00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fin</label>
+                                        <input type="time" class="form-control form-control-sm team-end" 
+                                               data-team="2" value="19:00">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Équipe 3 -->
+                            <div class="team-config">
+                                <div class="team-header d-flex justify-content-between">
+                                    <div>
+                                        <i class="fas fa-user-tie me-2"></i>Équipe 3
+                                        <span class="badge bg-warning absence-badge" id="absenceBadge3">0 abs</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="openTeamModal(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-12 mb-2">
+                                        <label class="form-label">Team Manager</label>
+                                        <input type="text" class="form-control form-control-sm team-tm" 
+                                               data-team="3" value="Karim">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agents totaux</label>
+                                        <input type="number" class="form-control form-control-sm team-total" 
+                                               data-team="3" value="13" min="1" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Présents aujourd'hui</label>
+                                        <input type="number" class="form-control form-control-sm team-present" 
+                                               data-team="3" value="11" min="0" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Début</label>
+                                        <input type="time" class="form-control form-control-sm team-start" 
+                                               data-team="3" value="09:00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fin</label>
+                                        <input type="time" class="form-control form-control-sm team-end" 
+                                               data-team="3" value="19:00">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Équipe 4 -->
+                            <div class="team-config">
+                                <div class="team-header d-flex justify-content-between">
+                                    <div>
+                                        <i class="fas fa-user-tie me-2"></i>Équipe 4
+                                        <span class="badge bg-danger absence-badge" id="absenceBadge4">0 abs</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="openTeamModal(4)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-12 mb-2">
+                                        <label class="form-label">Team Manager</label>
+                                        <input type="text" class="form-control form-control-sm team-tm" 
+                                               data-team="4" value="Sara">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agents totaux</label>
+                                        <input type="number" class="form-control form-control-sm team-total" 
+                                               data-team="4" value="14" min="1" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Présents aujourd'hui</label>
+                                        <input type="number" class="form-control form-control-sm team-present" 
+                                               data-team="4" value="12" min="0" max="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Début</label>
+                                        <input type="time" class="form-control form-control-sm team-start" 
+                                               data-team="4" value="10:00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fin</label>
+                                        <input type="time" class="form-control form-control-sm team-end" 
+                                               data-team="4" value="18:30">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-clock me-1"></i>AHT (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="ahtInput" value="10" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-bullseye me-1"></i>Objectif Total
+                                    </label>
+                                    <input type="number" class="form-control" id="dailyTarget" value="700" min="1">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary-custom btn-custom" id="updateConfigBtn">
+                                <i class="fas fa-sync-alt me-2"></i>Mettre à jour Configuration
+                            </button>
+                            <button class="btn btn-success-custom btn-custom" id="calculateAllBtn">
+                                <i class="fas fa-calculator me-2"></i>Calculer Tout
+                            </button>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Agents Totaux:</strong> <span id="totalAgentsConfig">50</span><br>
+                            <strong>Présents Aujourd'hui:</strong> <span id="totalPresentConfig">42</span><br>
+                            <strong>Absences:</strong> <span id="totalAbsencesConfig">8</span><br>
+                            <strong>Heures productives:</strong> <span id="totalProductiveHours">0h</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2"></i>Résumé de la Journée
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <div class="stat-card">
+                                    <div class="stat-number text-primary" id="summaryDemande">700</div>
+                                    <div class="stat-label">Demandé</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="stat-card">
+                                    <div class="stat-number text-success" id="summaryCalcule">0</div>
+                                    <div class="stat-label">Calculé</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="stat-card">
+                                    <div class="stat-number text-warning" id="summaryTraite">0</div>
+                                    <div class="stat-label">Traité</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="summaryPerformance">0%</div>
+                                    <div class="stat-label">Performance</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <i class="fas fa-chart-line me-2"></i>
+                            <strong>Capacité Totale:</strong> <span id="summaryCapacity">0</span> appels<br>
+                            <strong>Couverture:</strong> <span id="summaryCoverage">0%</span><br>
+                            <strong>Agents Disponibles:</strong> <span id="summaryAvailableAgents">0</span> agents
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-download me-2"></i>Export des Données
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning-custom btn-custom" id="exportDemandeBtn">
+                                <i class="fas fa-file-excel me-2"></i>Export Demande
+                            </button>
+                            <button class="btn btn-success-custom btn-custom" id="exportTraiteBtn">
+                                <i class="fas fa-file-excel me-2"></i>Export Traité
+                            </button>
+                            <button class="btn btn-primary-custom btn-custom" id="exportComparaisonBtn">
+                                <i class="fas fa-file-excel me-2"></i>Export Comparaison
+                            </button>
+                            <button class="btn btn-info btn-custom" id="exportAgentsBtn">
+                                <i class="fas fa-users me-2"></i>Export Agents
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Main Dashboard -->
+            <div class="col-lg-8">
+                <!-- Commands Table with 3 Columns -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bullhorn me-2"></i>Commandes Client & Suivi Temps Réel
+                        <small class="float-end">Créneaux de 30 minutes (8h30 - 19h00)</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-success w-100" id="autoCalculateBtn">
+                                    <i class="fas fa-calculator me-1"></i> Calculer Auto
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-warning w-100" id="clearAllBtn">
+                                    <i class="fas fa-eraser me-1"></i> Effacer Tout
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-primary w-100" id="updateReelBtn">
+                                    <i class="fas fa-save me-1"></i> Enregistrer
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-info w-100" id="showAgentsBtn">
+                                    <i class="fas fa-eye me-1"></i> Voir Agents
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" id="commandsTable">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">Créneau</th>
+                                        <th width="15%">Agents Présents</th>
+                                        <th width="20%" class="demande-cell">Demande Client</th>
+                                        <th width="20%" class="calcule-cell">Calculé Auto</th>
+                                        <th width="20%" class="reel-cell">Traité Réel</th>
+                                        <th width="10%">Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commandsBody"></tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td><strong>TOTAL</strong></td>
+                                        <td><strong id="totalAgentsDay">0</strong></td>
+                                        <td class="demande-cell"><strong id="totalDemande">0</strong></td>
+                                        <td class="calcule-cell"><strong id="totalCalcule">0</strong></td>
+                                        <td class="reel-cell"><strong id="totalTraite">0</strong></td>
+                                        <td><strong id="totalPerformance">0%</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div class="alert alert-secondary mt-3">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Explication:</strong> 
+                            <span class="demande-cell px-2">Demande Client</span> = Objectif par créneau | 
+                            <span class="calcule-cell px-2">Calculé Auto</span> = Répartition selon disponibilité réelle | 
+                            <span class="reel-cell px-2">Traité Réel</span> = Saisie temps réel
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Agent Details Matrix -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-table me-2"></i>Répartition Détailée par Agent
+                        <small class="float-end">Ce que chaque agent DOIT traiter selon sa présence et disponibilité</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fas fa-filter me-1"></i>Filtrer par Équipe
+                                </label>
+                                <select class="form-select form-select-sm" id="teamFilter">
+                                    <option value="all">Toutes les équipes</option>
+                                    <option value="1">Équipe 1 (Ahmed)</option>
+                                    <option value="2">Équipe 2 (Fatima)</option>
+                                    <option value="3">Équipe 3 (Karim)</option>
+                                    <option value="4">Équipe 4 (Sara)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-1"></i>Filtrer par Statut
+                                </label>
+                                <select class="form-select form-select-sm" id="statusFilter">
+                                    <option value="all">Tous les statuts</option>
+                                    <option value="present">Présents uniquement</option>
+                                    <option value="absent">Absents uniquement</option>
+                                    <option value="vacation">Congés uniquement</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fas fa-calculator me-1"></i>Actions
+                                </label>
+                                <button class="btn btn-sm btn-success w-100" id="calculateAgentsBtn">
+                                    Calculer Répartition
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="agentDetailsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th rowspan="2" style="vertical-align: middle;">Agent</th>
+                                        <th rowspan="2" style="vertical-align: middle;">Équipe</th>
+                                        <th rowspan="2" style="vertical-align: middle;">TM</th>
+                                        <th rowspan="2" style="vertical-align: middle;">Statut</th>
+                                        <th colspan="21" style="text-align: center;">Créneaux de 30 minutes</th>
+                                        <th rowspan="2" style="vertical-align: middle;">Total Jour</th>
+                                        <th rowspan="2" style="vertical-align: middle;">Objectif</th>
+                                    </tr>
+                                    <tr id="timeSlotsHeader"></tr>
+                                </thead>
+                                <tbody id="agentDetailsBody"></tbody>
+                                <tfoot class="table-secondary">
+                                    <tr id="agentDetailsFooter"></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-4 text-center text-muted py-3">
+            <p class="mb-0">
+                <i class="fas fa-copyright me-1"></i>
+                2025 Direct Assurance - Gestion Complète
+            </p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Main Application -->
+    <!-- Remplacez juste la partie JavaScript avec ce code corrigé -->
+
+<script>
+// Configuration et données
+const TIME_SLOTS = [
+    "8h30-9h00", "9h00-9h30", "9h30-10h00", "10h00-10h30",
+    "10h30-11h00", "11h00-11h30", "11h30-12h00", "12h00-12h30",
+    "12h30-13h00", "13h00-13h30", "13h30-14h00", "14h00-14h30",
+    "14h30-15h00", "15h00-15h30", "15h30-16h00", "16h00-16h30",
+    "16h30-17h00", "17h00-17h30", "17h30-18h00", "18h00-18h30",
+    "18h30-19h00"
+];
+
+class CallCenterManager {
+    constructor() {
+        this.config = {
+            teams: {
+                1: { 
+                    total: 12, 
+                    present: 10, 
+                    start: "08:30", 
+                    end: "17:30", 
+                    tm: "Ahmed", 
+                    agents: [], 
+                    break: 1.5,
+                    absences: [],
+                    vacations: []
+                },
+                2: { 
+                    total: 11, 
+                    present: 9, 
+                    start: "11:00", 
+                    end: "19:00", 
+                    tm: "Fatima", 
+                    agents: [], 
+                    break: 1.5,
+                    absences: [],
+                    vacations: []
+                },
+                3: { 
+                    total: 13, 
+                    present: 11, 
+                    start: "09:00", 
+                    end: "19:00", 
+                    tm: "Karim", 
+                    agents: [], 
+                    break: 1.5,
+                    absences: [],
+                    vacations: []
+                },
+                4: { 
+                    total: 14, 
+                    present: 12, 
+                    start: "10:00", 
+                    end: "18:30", 
+                    tm: "Sara", 
+                    agents: [], 
+                    break: 1.5,
+                    absences: [],
+                    vacations: []
+                }
+            },
+            aht: 10,
+            occupancy: 0.85,
+            dailyTarget: 700
+        };
+
+        this.data = {
+            demandeClient: {},
+            calculeAuto: {},
+            traiteReel: {},
+            agents: [],
+            agentDistribution: {},
+            slotDistribution: {}
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.setCurrentDate();
+        this.initializeData();
+        this.updateConfiguration();
+        this.setupEventListeners();
+        this.updateAbsenceBadges();
+    }
+
+    setCurrentDate() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('fr-FR', options);
+    }
+
+    initializeData() {
+        TIME_SLOTS.forEach(slot => {
+            this.data.demandeClient[slot] = 0;
+            this.data.calculeAuto[slot] = 0;
+            this.data.traiteReel[slot] = 0;
+            this.data.slotDistribution[slot] = {
+                agents: 0,
+                capacity: 0,
+                distribution: []
+            };
+        });
+
+        this.generateAgents();
+    }
+
+    parseTimeToDecimal(timeStr) {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours + (minutes / 60);
+    }
+
+    parseTimeSlotToDecimal(timeSlot) {
+        const startTime = timeSlot.split('-')[0];
+        // Gérer "8h30" -> 8.5
+        if (startTime.includes('h')) {
+            const [hours, minutes] = startTime.replace('h', ':').split(':').map(Number);
+            return hours + (minutes / 60);
+        }
+        return parseFloat(startTime);
+    }
+
+    parseTimeSlotEndDecimal(timeSlot) {
+        const endTime = timeSlot.split('-')[1];
+        // Gérer "9h00" -> 9.0
+        if (endTime.includes('h')) {
+            const [hours, minutes] = endTime.replace('h', ':').split(':').map(Number);
+            return hours + (minutes / 60);
+        }
+        return parseFloat(endTime);
+    }
+
+    // CORRECTION ICI : Meilleure logique pour vérifier la présence
+    isAgentPresentInSlot(agent, timeSlot) {
+        if (agent.status !== 'present') return false;
+        
+        const slotStart = this.parseTimeSlotToDecimal(timeSlot);
+        const slotEnd = this.parseTimeSlotEndDecimal(timeSlot);
+        const team = this.config.teams[agent.team];
+        
+        const teamStart = this.parseTimeToDecimal(team.start);
+        const teamEnd = this.parseTimeToDecimal(team.end);
+        
+        // Un agent travaille sur un créneau si:
+        // 1. Le créneau commence pendant ses heures de travail (slotStart >= teamStart && slotStart < teamEnd)
+        // 2. ET le créneau se termine avant ou à la fin de son shift (slotEnd <= teamEnd)
+        // 3. ET le créneau commence après ou au début de son shift (slotStart >= teamStart)
+        
+        // CORRECTION : Utiliser slotEnd > teamStart pour inclure les créneaux qui commencent exactement à la fin
+        return slotStart >= teamStart && slotStart < teamEnd;
+    }
+
+    updateConfiguration() {
+        // Mettre à jour chaque équipe
+        for (let teamId = 1; teamId <= 4; teamId++) {
+            const team = this.config.teams[teamId];
+            team.tm = document.querySelector(`.team-tm[data-team="${teamId}"]`).value;
+            team.total = parseInt(document.querySelector(`.team-total[data-team="${teamId}"]`).value) || 0;
+            team.present = parseInt(document.querySelector(`.team-present[data-team="${teamId}"]`).value) || 0;
+            team.start = document.querySelector(`.team-start[data-team="${teamId}"]`).value;
+            team.end = document.querySelector(`.team-end[data-team="${teamId}"]`).value;
+            
+            if (team.present > team.total) {
+                team.present = team.total;
+                document.querySelector(`.team-present[data-team="${teamId}"]`).value = team.total;
+            }
+        }
+
+        this.config.aht = parseInt(document.getElementById('ahtInput').value) || 10;
+        this.config.dailyTarget = parseInt(document.getElementById('dailyTarget').value) || 700;
+
+        let totalProductiveHours = 0;
+        Object.values(this.config.teams).forEach(team => {
+            const start = this.parseTimeToDecimal(team.start);
+            const end = this.parseTimeToDecimal(team.end);
+            const hours = end - start;
+            team.productive = hours - team.break;
+            totalProductiveHours += team.present * team.productive;
+        });
+
+        const totalAgents = Object.values(this.config.teams).reduce((sum, team) => sum + team.total, 0);
+        const totalPresent = Object.values(this.config.teams).reduce((sum, team) => sum + team.present, 0);
+        const totalAbsences = totalAgents - totalPresent;
+        
+        document.getElementById('totalAgentsConfig').textContent = totalAgents;
+        document.getElementById('totalPresentConfig').textContent = totalPresent;
+        document.getElementById('totalAbsencesConfig').textContent = totalAbsences;
+        document.getElementById('totalProductiveHours').textContent = totalProductiveHours.toFixed(1) + 'h';
+
+        this.updateAbsenceBadges();
+        this.generateAgents();
+        this.renderCommandsTable();
+        
+        this.showNotification('Configuration mise à jour', 'success');
+    }
+
+    updateAbsenceBadges() {
+        for (let teamId = 1; teamId <= 4; teamId++) {
+            const team = this.config.teams[teamId];
+            const absences = team.total - team.present;
+            document.getElementById(`absenceBadge${teamId}`).textContent = `${absences} abs`;
+        }
+    }
+
+    getTotalAgents() {
+        return Object.values(this.config.teams).reduce((sum, team) => sum + team.total, 0);
+    }
+
+    getTotalPresent() {
+        return Object.values(this.config.teams).reduce((sum, team) => sum + team.present, 0);
+    }
+
+    generateAgents() {
+        this.data.agents = [];
+        let agentId = 1001;
+
+        Object.entries(this.config.teams).forEach(([teamId, team]) => {
+            const teamNum = parseInt(teamId);
+            
+            // Agents présents
+            for (let i = 0; i < team.present; i++) {
+                this.data.agents.push({
+                    id: agentId++,
+                    code: `T${teamId}-${(i+1).toString().padStart(2, '0')}`,
+                    team: teamNum,
+                    tm: team.tm,
+                    hours: team.productive,
+                    status: 'present',
+                    callsBySlot: {},
+                    totalCalls: 0,
+                    target: 0
+                });
+            }
+            
+            // Agents absents
+            for (let i = team.present; i < team.total; i++) {
+                this.data.agents.push({
+                    id: agentId++,
+                    code: `T${teamId}-${(i+1).toString().padStart(2, '0')}`,
+                    team: teamNum,
+                    tm: team.tm,
+                    hours: 0,
+                    status: 'absent',
+                    callsBySlot: {},
+                    totalCalls: 0,
+                    target: 0
+                });
+            }
+        });
+
+        this.updateTeamFilter();
+    }
+
+    updateTeamFilter() {
+        const teamFilter = document.getElementById('teamFilter');
+        teamFilter.innerHTML = '<option value="all">Toutes les équipes</option>';
+        
+        Object.entries(this.config.teams).forEach(([teamId, team]) => {
+            const option = document.createElement('option');
+            option.value = teamId;
+            option.textContent = `Équipe ${teamId} (${team.tm})`;
+            teamFilter.appendChild(option);
+        });
+    }
+
+    // CORRECTION ICI : Calcul correct des agents présents
+    calculateAgentsPresent(slot) {
+        let totalAgents = 0;
+        const slotStart = this.parseTimeSlotToDecimal(slot);
+
+        Object.values(this.config.teams).forEach(team => {
+            const teamStart = this.parseTimeToDecimal(team.start);
+            const teamEnd = this.parseTimeToDecimal(team.end);
+            
+            // CORRECTION : Vérifier si le créneau commence pendant les heures de l'équipe
+            if (slotStart >= teamStart && slotStart < teamEnd) {
+                totalAgents += team.present;
+            }
+        });
+
+        return totalAgents;
+    }
+
+    calculateSlotCapacity(slot) {
+        const agentsPresent = this.calculateAgentsPresent(slot);
+        const capacity = agentsPresent * (30 / this.config.aht) * this.config.occupancy;
+        return Math.floor(capacity);
+    }
+
+    renderCommandsTable() {
+        const tableBody = document.getElementById('commandsBody');
+        tableBody.innerHTML = '';
+
+        let totalAgents = 0;
+        let totalDemande = 0;
+        let totalCalcule = 0;
+        let totalTraite = 0;
+
+        TIME_SLOTS.forEach((slot, index) => {
+            const agentsPresent = this.calculateAgentsPresent(slot);
+            const capacity = this.calculateSlotCapacity(slot);
+            const demande = this.data.demandeClient[slot] || 0;
+            const calcule = this.data.calculeAuto[slot] || 0;
+            const traite = this.data.traiteReel[slot] || 0;
+            
+            let performance = 0;
+            if (demande > 0) {
+                performance = Math.round((traite / demande) * 100);
+            } else if (calcule > 0) {
+                performance = Math.round((traite / calcule) * 100);
+            }
+
+            totalAgents += agentsPresent;
+            totalDemande += demande;
+            totalCalcule += calcule;
+            totalTraite += traite;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${slot}</strong></td>
+                <td>
+                    <span class="badge bg-info">${agentsPresent}</span>
+                    <small class="d-block text-muted">Cap: ${capacity}</small>
+                </td>
+                <td class="demande-cell">
+                    <input type="number" class="form-control form-control-sm demande-input" 
+                           data-slot="${slot}" value="${demande}" min="0">
+                </td>
+                <td class="calcule-cell">
+                    <span class="badge bg-primary">${calcule}</span>
+                </td>
+                <td class="reel-cell">
+                    <input type="number" class="form-control form-control-sm traite-input" 
+                           data-slot="${slot}" value="${traite}" min="0">
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar ${performance >= 100 ? 'bg-excellent' : performance >= 80 ? 'bg-good' : performance >= 60 ? 'bg-warning' : 'bg-danger'}" 
+                             style="width: ${Math.min(performance, 100)}%"></div>
+                    </div>
+                    <small>${performance}%</small>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        document.getElementById('totalAgentsDay').textContent = totalAgents;
+        document.getElementById('totalDemande').textContent = totalDemande;
+        document.getElementById('totalCalcule').textContent = totalCalcule;
+        document.getElementById('totalTraite').textContent = totalTraite;
+        
+        let totalPerformance = 0;
+        if (totalDemande > 0) {
+            totalPerformance = Math.round((totalTraite / totalDemande) * 100);
+        } else if (totalCalcule > 0) {
+            totalPerformance = Math.round((totalTraite / totalCalcule) * 100);
+        }
+        document.getElementById('totalPerformance').textContent = totalPerformance + '%';
+
+        this.updateSummary();
+        this.setupCommandInputs();
+    }
+
+    autoCalculateDistribution() {
+        const totalDemande = Object.values(this.data.demandeClient).reduce((a, b) => a + b, 0);
+        const target = totalDemande > 0 ? totalDemande : this.config.dailyTarget;
+
+        let totalCapacity = 0;
+        TIME_SLOTS.forEach(slot => {
+            totalCapacity += this.calculateSlotCapacity(slot);
+        });
+
+        TIME_SLOTS.forEach(slot => {
+            const capacity = this.calculateSlotCapacity(slot);
+            const share = capacity / totalCapacity;
+            this.data.calculeAuto[slot] = Math.round(target * share);
+        });
+
+        this.renderCommandsTable();
+        this.showNotification('Répartition automatique calculée', 'success');
+    }
+
+    calculateAgentDistribution() {
+        this.data.agents.forEach(agent => {
+            agent.callsBySlot = {};
+            agent.totalCalls = 0;
+        });
+
+        TIME_SLOTS.forEach(slot => {
+            this.data.slotDistribution[slot] = {
+                agents: this.calculateAgentsPresent(slot),
+                capacity: this.calculateSlotCapacity(slot),
+                distribution: []
+            };
+        });
+
+        TIME_SLOTS.forEach(slot => {
+            const slotCalls = this.data.calculeAuto[slot] || 0;
+            const agentsPresent = this.calculateAgentsPresent(slot);
+
+            if (agentsPresent > 0 && slotCalls > 0) {
+                const callsPerAgent = Math.floor(slotCalls / agentsPresent);
+                const extraCalls = slotCalls % agentsPresent;
+
+                const presentAgents = this.data.agents.filter(agent => 
+                    this.isAgentPresentInSlot(agent, slot)
+                );
+
+                presentAgents.forEach((agent, index) => {
+                    const calls = callsPerAgent + (index < extraCalls ? 1 : 0);
+                    agent.callsBySlot[slot] = calls;
+                    agent.totalCalls += calls;
+                });
+            }
+        });
+
+        const totalCalculated = Object.values(this.data.calculeAuto).reduce((a, b) => a + b, 0);
+        if (totalCalculated > 0) {
+            this.data.agents.forEach(agent => {
+                if (agent.status === 'present') {
+                    agent.target = Math.round((agent.totalCalls / totalCalculated) * this.config.dailyTarget);
+                } else {
+                    agent.target = 0;
+                }
+            });
+        }
+
+        this.renderAgentDetailsTable();
+        this.showNotification('Répartition par agent calculée', 'success');
+    }
+
+    renderAgentDetailsTable() {
+        const timeSlotsHeader = document.getElementById('timeSlotsHeader');
+        timeSlotsHeader.innerHTML = '';
+        
+        TIME_SLOTS.forEach(slot => {
+            const th = document.createElement('th');
+            th.textContent = slot.split('-')[0];
+            th.title = slot;
+            th.style.fontSize = '0.8rem';
+            timeSlotsHeader.appendChild(th);
+        });
+
+        const tableBody = document.getElementById('agentDetailsBody');
+        tableBody.innerHTML = '';
+
+        let slotTotals = {};
+        TIME_SLOTS.forEach(slot => {
+            slotTotals[slot] = 0;
+        });
+
+        this.data.agents.forEach(agent => {
+            const row = document.createElement('tr');
+            row.className = 'agent-row';
+            row.dataset.agent = agent.code;
+            row.dataset.team = agent.team;
+            row.dataset.status = agent.status;
+
+            const cellAgent = document.createElement('td');
+            cellAgent.innerHTML = `<strong>${agent.code}</strong>`;
+            
+            const cellTeam = document.createElement('td');
+            const teamColor = agent.team === 1 ? 'primary' : agent.team === 2 ? 'success' : agent.team === 3 ? 'warning' : 'danger';
+            cellTeam.innerHTML = `<span class="badge bg-${teamColor}">Éq. ${agent.team}</span>`;
+            
+            const cellTM = document.createElement('td');
+            cellTM.textContent = agent.tm;
+            
+            const cellStatus = document.createElement('td');
+            let statusBadge = '';
+            if (agent.status === 'present') {
+                statusBadge = '<span class="badge bg-success">Présent</span>';
+            } else if (agent.status === 'absent') {
+                statusBadge = '<span class="badge bg-danger">Absent</span>';
+            } else {
+                statusBadge = '<span class="badge bg-warning">Congé</span>';
+            }
+            cellStatus.innerHTML = statusBadge;
+
+            row.appendChild(cellAgent);
+            row.appendChild(cellTeam);
+            row.appendChild(cellTM);
+            row.appendChild(cellStatus);
+
+            TIME_SLOTS.forEach(slot => {
+                const cell = document.createElement('td');
+                cell.style.textAlign = 'center';
+                cell.style.padding = '4px';
+
+                const isPresent = this.isAgentPresentInSlot(agent, slot);
+                const calls = agent.callsBySlot[slot] || 0;
+
+                if (agent.status !== 'present') {
+                    cell.innerHTML = '<span class="badge bg-secondary agent-absent">ABS</span>';
+                    cell.title = `${agent.status === 'absent' ? 'Absent' : 'En congé'}`;
+                } else if (!isPresent) {
+                    cell.innerHTML = '<span class="badge bg-light text-dark">-</span>';
+                    cell.title = 'Hors horaire';
+                } else if (calls > 0) {
+                    const badgeClass = calls <= 2 ? 'bg-success' : calls <= 4 ? 'bg-warning' : 'bg-danger';
+                    cell.innerHTML = `<span class="badge ${badgeClass} agent-present">${calls}</span>`;
+                    cell.title = `${agent.code}: ${calls} appels`;
+                    slotTotals[slot] += calls;
+                } else {
+                    cell.innerHTML = '<span class="badge bg-light text-dark">0</span>';
+                    cell.title = 'Présent mais 0 appel';
+                }
+
+                row.appendChild(cell);
+            });
+
+            const cellTotal = document.createElement('td');
+            cellTotal.innerHTML = `<strong class="text-primary">${agent.totalCalls}</strong>`;
+            cellTotal.style.textAlign = 'center';
+            cellTotal.style.fontWeight = 'bold';
+
+            const cellTarget = document.createElement('td');
+            let targetHTML = '';
+            if (agent.status === 'present') {
+                const targetAchievement = agent.target > 0 ? Math.round((agent.totalCalls / agent.target) * 100) : 0;
+                targetHTML = `
+                    <small class="d-block">${agent.target}</small>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar ${targetAchievement >= 100 ? 'bg-success' : targetAchievement >= 80 ? 'bg-info' : 'bg-warning'}" 
+                             style="width: ${Math.min(targetAchievement, 100)}%"></div>
+                    </div>
+                    <small>${targetAchievement}%</small>
+                `;
+            } else {
+                targetHTML = '<span class="badge bg-secondary">N/A</span>';
+            }
+            cellTarget.innerHTML = targetHTML;
+            cellTarget.style.textAlign = 'center';
+
+            row.appendChild(cellTotal);
+            row.appendChild(cellTarget);
+            tableBody.appendChild(row);
+        });
+
+        this.renderAgentDetailsFooter(slotTotals);
+    }
+
+    renderAgentDetailsFooter(slotTotals) {
+        const footer = document.getElementById('agentDetailsFooter');
+        footer.innerHTML = '';
+
+        const cellLabel = document.createElement('td');
+        cellLabel.innerHTML = '<strong>TOTAUX</strong>';
+        cellLabel.colSpan = 4;
+        footer.appendChild(cellLabel);
+
+        TIME_SLOTS.forEach(slot => {
+            const cell = document.createElement('td');
+            cell.style.textAlign = 'center';
+            cell.style.fontWeight = 'bold';
+            cell.style.backgroundColor = '#e9ecef';
+            cell.textContent = slotTotals[slot] || 0;
+            footer.appendChild(cell);
+        });
+
+        const cellGrandTotal = document.createElement('td');
+        const grandTotal = Object.values(slotTotals).reduce((a, b) => a + b, 0);
+        cellGrandTotal.innerHTML = `<strong class="text-success">${grandTotal}</strong>`;
+        cellGrandTotal.style.textAlign = 'center';
+        cellGrandTotal.style.fontWeight = 'bold';
+
+        const cellEmpty = document.createElement('td');
+        cellEmpty.innerHTML = '';
+
+        footer.appendChild(cellGrandTotal);
+        footer.appendChild(cellEmpty);
+    }
+
+    filterAgentDetails() {
+        const teamFilter = document.getElementById('teamFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.agent-row');
+
+        rows.forEach(row => {
+            const team = row.dataset.team;
+            const status = row.dataset.status;
+
+            const showTeam = (teamFilter === 'all' || team === teamFilter);
+            const showStatus = (statusFilter === 'all' || 
+                (statusFilter === 'present' && status === 'present') ||
+                (statusFilter === 'absent' && status === 'absent') ||
+                (statusFilter === 'vacation' && status === 'vacation'));
+
+            row.style.display = (showTeam && showStatus) ? '' : 'none';
+        });
+    }
+
+    updateSummary() {
+        const totalDemande = Object.values(this.data.demandeClient).reduce((a, b) => a + b, 0);
+        const totalCalcule = Object.values(this.data.calculeAuto).reduce((a, b) => a + b, 0);
+        const totalTraite = Object.values(this.data.traiteReel).reduce((a, b) => a + b, 0);
+        const totalCapacity = TIME_SLOTS.reduce((sum, slot) => sum + this.calculateSlotCapacity(slot), 0);
+        const totalPresent = this.getTotalPresent();
+        const maxAgents = Math.max(...TIME_SLOTS.map(slot => this.calculateAgentsPresent(slot)));
+
+        let performance = 0;
+        if (totalDemande > 0) {
+            performance = Math.round((totalTraite / totalDemande) * 100);
+        } else if (totalCalcule > 0) {
+            performance = Math.round((totalTraite / totalCalcule) * 100);
+        }
+
+        const coverage = totalCapacity > 0 ? Math.round((totalDemande / totalCapacity) * 100) : 0;
+
+        document.getElementById('summaryDemande').textContent = totalDemande;
+        document.getElementById('summaryCalcule').textContent = totalCalcule;
+        document.getElementById('summaryTraite').textContent = totalTraite;
+        document.getElementById('summaryPerformance').textContent = performance + '%';
+        document.getElementById('summaryCapacity').textContent = totalCapacity;
+        document.getElementById('summaryAvailableAgents').textContent = totalPresent;
+        document.getElementById('summaryCoverage').textContent = coverage + '%';
+    }
+
+    setupCommandInputs() {
+        document.querySelectorAll('.demande-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const slot = e.target.dataset.slot;
+                const value = parseInt(e.target.value) || 0;
+                this.data.demandeClient[slot] = value;
+                this.renderCommandsTable();
+            });
+        });
+
+        document.querySelectorAll('.traite-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const slot = e.target.dataset.slot;
+                const value = parseInt(e.target.value) || 0;
+                this.data.traiteReel[slot] = value;
+                this.renderCommandsTable();
+            });
+        });
+    }
+
+    setupEventListeners() {
+        document.getElementById('updateConfigBtn').addEventListener('click', () => this.updateConfiguration());
+        document.getElementById('calculateAllBtn').addEventListener('click', () => {
+            this.autoCalculateDistribution();
+            this.calculateAgentDistribution();
+        });
+
+        document.getElementById('autoCalculateBtn').addEventListener('click', () => this.autoCalculateDistribution());
+        document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllData());
+        document.getElementById('updateReelBtn').addEventListener('click', () => this.saveReelData());
+        document.getElementById('calculateAgentsBtn').addEventListener('click', () => this.calculateAgentDistribution());
+        document.getElementById('showAgentsBtn').addEventListener('click', () => this.calculateAgentDistribution());
+
+        document.getElementById('teamFilter').addEventListener('change', () => this.filterAgentDetails());
+        document.getElementById('statusFilter').addEventListener('change', () => this.filterAgentDetails());
+
+        document.getElementById('exportDemandeBtn').addEventListener('click', () => this.exportDemandeClient());
+        document.getElementById('exportTraiteBtn').addEventListener('click', () => this.exportTraiteReel());
+        document.getElementById('exportComparaisonBtn').addEventListener('click', () => this.exportComparaison());
+        document.getElementById('exportAgentsBtn').addEventListener('click', () => this.exportAgents());
+
+        document.getElementById('manageAbsencesBtn').addEventListener('click', () => this.showAbsenceManager());
+
+        document.querySelectorAll('.team-tm, .team-total, .team-present, .team-start, .team-end').forEach(input => {
+            input.addEventListener('change', () => this.updateConfiguration());
+        });
+    }
+
+    showAbsenceManager() {
+        let modalHTML = `
+            <div class="modal fade" id="absenceModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-user-slash me-2"></i>Gestion des Absences par Équipe</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Modifiez le nombre d'agents présents pour chaque équipe. Les absences seront automatiquement calculées.
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Équipe</th>
+                                        <th>TM</th>
+                                        <th>Agents Totaux</th>
+                                        <th>Présents Aujourd'hui</th>
+                                        <th>Absences</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+        Object.entries(this.config.teams).forEach(([teamId, team]) => {
+            const absences = team.total - team.present;
+            modalHTML += `
+                <tr>
+                    <td><span class="badge bg-primary">Équipe ${teamId}</span></td>
+                    <td><strong>${team.tm}</strong></td>
+                    <td>${team.total}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm w-75 mx-auto present-input" 
+                               data-team="${teamId}" value="${team.present}" min="0" max="${team.total}">
+                    </td>
+                    <td><span class="badge bg-danger">${absences}</span></td>
+                </tr>`;
+        });
+
+        modalHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <button type="button" class="btn btn-primary" id="saveAbsencesBtn">Enregistrer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = modalHTML;
+        document.body.appendChild(modalContainer);
+
+        const modal = new bootstrap.Modal(document.getElementById('absenceModal'));
+        modal.show();
+
+        document.getElementById('saveAbsencesBtn').addEventListener('click', () => {
+            document.querySelectorAll('.present-input').forEach(input => {
+                const teamId = input.dataset.team;
+                const present = parseInt(input.value) || 0;
+                const team = this.config.teams[teamId];
+                
+                if (present > team.total) {
+                    input.value = team.total;
+                    this.config.teams[teamId].present = team.total;
+                } else {
+                    this.config.teams[teamId].present = present;
+                }
+            });
+
+            this.updateConfiguration();
+            modal.hide();
+            
+            setTimeout(() => {
+                modalContainer.remove();
+            }, 300);
+        });
+
+        document.getElementById('absenceModal').addEventListener('hidden.bs.modal', function() {
+            modalContainer.remove();
+        });
+    }
+
+    clearAllData() {
+        if (confirm('Voulez-vous vraiment effacer toutes les données?')) {
+            TIME_SLOTS.forEach(slot => {
+                this.data.demandeClient[slot] = 0;
+                this.data.calculeAuto[slot] = 0;
+                this.data.traiteReel[slot] = 0;
+            });
+            this.renderCommandsTable();
+            this.showNotification('Toutes les données ont été effacées', 'info');
+        }
+    }
+
+    saveReelData() {
+        this.showNotification('Données temps réel enregistrées', 'success');
+    }
+
+    exportDemandeClient() {
+        const data = [
+            ['DEMANDE CLIENT PAR CRENEAU'],
+            ['Date', new Date().toLocaleDateString('fr-FR')],
+            ['Créneau', 'Agents Présents', 'Capacité', 'Demande Client'],
+            ...TIME_SLOTS.map(slot => [
+                slot,
+                this.calculateAgentsPresent(slot),
+                this.calculateSlotCapacity(slot),
+                this.data.demandeClient[slot] || 0
+            ])
+        ];
+
+        const totalDemande = Object.values(this.data.demandeClient).reduce((a, b) => a + b, 0);
+        data.push(['TOTAL', '', '', totalDemande]);
+
+        this.exportToExcel(data, 'demande_client');
+    }
+
+    exportTraiteReel() {
+        const data = [
+            ['TRAITE REEL PAR CRENEAU'],
+            ['Date', new Date().toLocaleDateString('fr-FR')],
+            ['Créneau', 'Agents Présents', 'Traité Réel', 'Performance %'],
+            ...TIME_SLOTS.map(slot => {
+                const demande = this.data.demandeClient[slot] || 0;
+                const traite = this.data.traiteReel[slot] || 0;
+                const performance = demande > 0 ? Math.round((traite / demande) * 100) : 0;
+                
+                return [
+                    slot,
+                    this.calculateAgentsPresent(slot),
+                    traite,
+                    performance + '%'
+                ];
+            })
+        ];
+
+        const totalTraite = Object.values(this.data.traiteReel).reduce((a, b) => a + b, 0);
+        data.push(['TOTAL', '', totalTraite, '']);
+
+        this.exportToExcel(data, 'traite_reel');
+    }
+
+    exportComparaison() {
+        const data = [
+            ['COMPARAISON DEMANDE VS TRAITE'],
+            ['Date', new Date().toLocaleDateString('fr-FR')],
+            ['Créneau', 'Demande Client', 'Traité Réel', 'Différence', 'Performance %'],
+            ...TIME_SLOTS.map(slot => {
+                const demande = this.data.demandeClient[slot] || 0;
+                const traite = this.data.traiteReel[slot] || 0;
+                const difference = traite - demande;
+                const performance = demande > 0 ? Math.round((traite / demande) * 100) : 0;
+                
+                return [
+                    slot,
+                    demande,
+                    traite,
+                    difference,
+                    performance + '%'
+                ];
+            })
+        ];
+
+        const totalDemande = Object.values(this.data.demandeClient).reduce((a, b) => a + b, 0);
+        const totalTraite = Object.values(this.data.traiteReel).reduce((a, b) => a + b, 0);
+        const totalDifference = totalTraite - totalDemande;
+        const totalPerformance = totalDemande > 0 ? Math.round((totalTraite / totalDemande) * 100) : 0;
+        
+        data.push(['TOTAL', totalDemande, totalTraite, totalDifference, totalPerformance + '%']);
+
+        this.exportToExcel(data, 'comparaison');
+    }
+
+    exportAgents() {
+        const data = [
+            ['REPARTITION PAR AGENT - AVEC ABSENCES'],
+            ['Date', new Date().toLocaleDateString('fr-FR')],
+            ['Agent ID', 'Équipe', 'TM', 'Statut', 'Heures Productives', ...TIME_SLOTS, 'Total Jour', 'Objectif', 'Performance %']
+        ];
+
+        this.data.agents.forEach(agent => {
+            const row = [
+                agent.code, 
+                `Éq. ${agent.team}`, 
+                agent.tm,
+                agent.status === 'present' ? 'Présent' : agent.status === 'absent' ? 'Absent' : 'Congé',
+                agent.hours + 'h'
+            ];
+            
+            TIME_SLOTS.forEach(slot => {
+                row.push(agent.callsBySlot[slot] || 0);
+            });
+            
+            const performance = agent.target > 0 ? Math.round((agent.totalCalls / agent.target) * 100) : 0;
+            row.push(agent.totalCalls);
+            row.push(agent.target);
+            row.push(performance + '%');
+            
+            data.push(row);
+        });
+
+        this.exportToExcel(data, 'repartition_agents_absences');
+    }
+
+    exportToExcel(data, sheetName) {
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.aoa_to_sheet(data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `${sheetName}_${date}.xlsx`;
+        
+        XLSX.writeFile(workbook, filename);
+        this.showNotification(`Fichier "${filename}" téléchargé`, 'success');
+    }
+
+    showNotification(message, type = 'info') {
+        const alertClass = {
+            'success': 'alert-success',
+            'error': 'alert-danger',
+            'warning': 'alert-warning',
+            'info': 'alert-info'
+        }[type] || 'alert-info';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 3000);
+    }
+}
+
+// Fonction pour ouvrir le modal de modification d'équipe
+function openTeamModal(teamId) {
+    const manager = window.callCenterManager;
+    const team = manager.config.teams[teamId];
+    
+    let modalHTML = `
+        <div class="modal fade" id="teamModal${teamId}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Équipe ${teamId}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nom du Team Manager</label>
+                            <input type="text" class="form-control" id="tmName${teamId}" value="${team.tm}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre total d'agents</label>
+                            <input type="number" class="form-control" id="totalAgents${teamId}" value="${team.total}" min="1" max="20">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Agents présents aujourd'hui</label>
+                            <input type="number" class="form-control" id="presentAgents${teamId}" value="${team.present}" min="0" max="${team.total}">
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Les absences seront calculées automatiquement: Total - Présents
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTeamChanges(${teamId})">Enregistrer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHTML;
+    document.body.appendChild(modalContainer);
+
+    const modal = new bootstrap.Modal(document.getElementById(`teamModal${teamId}`));
+    modal.show();
+
+    document.getElementById(`teamModal${teamId}`).addEventListener('hidden.bs.modal', function() {
+        modalContainer.remove();
+    });
+}
+
+// Fonction pour sauvegarder les modifications d'équipe
+function saveTeamChanges(teamId) {
+    const manager = window.callCenterManager;
+    const tmName = document.getElementById(`tmName${teamId}`).value;
+    const totalAgents = parseInt(document.getElementById(`totalAgents${teamId}`).value) || 0;
+    const presentAgents = parseInt(document.getElementById(`presentAgents${teamId}`).value) || 0;
+
+    manager.config.teams[teamId].tm = tmName;
+    manager.config.teams[teamId].total = totalAgents;
+    manager.config.teams[teamId].present = Math.min(presentAgents, totalAgents);
+
+    document.querySelector(`.team-tm[data-team="${teamId}"]`).value = tmName;
+    document.querySelector(`.team-total[data-team="${teamId}"]`).value = totalAgents;
+    document.querySelector(`.team-present[data-team="${teamId}"]`).value = Math.min(presentAgents, totalAgents);
+
+    manager.updateConfiguration();
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById(`teamModal${teamId}`));
+    modal.hide();
+
+    manager.showNotification(`Équipe ${teamId} mise à jour`, 'success');
+}
+
+// Initialiser l'application
+document.addEventListener('DOMContentLoaded', () => {
+    window.callCenterManager = new CallCenterManager();
+    window.callCenterManager.renderCommandsTable();
+});
+</script>
+</body>
+</html>
